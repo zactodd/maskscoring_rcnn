@@ -25,7 +25,7 @@ class MaskIoUFeatureExtractor(nn.Module):
         self.maskiou_fc1 = nn.Linear(256*7*7, 1024)
         self.maskiou_fc2 = nn.Linear(1024, 1024)
 
-        self.acf1 = cfg.MODEL.ACTIVATION_FUNCTION
+        self.acf = cfg.MODEL.ACTIVATION_FUNCTION
 
         for l in [self.maskiou_fcn1, self.maskiou_fcn2, self.maskiou_fcn3, self.maskiou_fcn4]:
             nn.init.kaiming_normal_(l.weight, mode="fan_out", nonlinearity="relu")
@@ -38,13 +38,13 @@ class MaskIoUFeatureExtractor(nn.Module):
     def forward(self, x, mask):
         mask_pool = F.max_pool2d(mask, kernel_size=2, stride=2)
         x = torch.cat((x, mask_pool), 1)
-        x = self.acf1(self.maskiou_fcn1(x))
-        x = self.acf1(self.maskiou_fcn2(x))
-        x = self.acf1(self.maskiou_fcn3(x))
-        x = self.acf1(self.maskiou_fcn4(x))
+        x = self.acf(self.maskiou_fcn1(x))
+        x = self.acf(self.maskiou_fcn2(x))
+        x = self.acf(self.maskiou_fcn3(x))
+        x = self.acf(self.maskiou_fcn4(x))
         x = x.view(x.size(0), -1)
-        x = self.acf1(self.maskiou_fc1(x))
-        x = self.acf1(self.maskiou_fc2(x))
+        x = self.acf(self.maskiou_fc1(x))
+        x = self.acf(self.maskiou_fc2(x))
  
         return x
 
