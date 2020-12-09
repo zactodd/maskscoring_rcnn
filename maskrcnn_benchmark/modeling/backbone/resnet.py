@@ -206,6 +206,7 @@ class BottleneckWithFixedBatchNorm(nn.Module):
         num_groups=1,
         stride_in_1x1=True,
         stride=1,
+        activation_function=F.relu_
     ):
         super(BottleneckWithFixedBatchNorm, self).__init__()
 
@@ -249,16 +250,18 @@ class BottleneckWithFixedBatchNorm(nn.Module):
         )
         self.bn3 = FrozenBatchNorm2d(out_channels)
 
+        self.acf1 = activation_function
+
     def forward(self, x):
         residual = x
 
         out = self.conv1(x)
         out = self.bn1(out)
-        out = F.relu_(out)
+        out = self.acf1(out)
 
         out = self.conv2(out)
         out = self.bn2(out)
-        out = F.relu_(out)
+        out = self.acf1(out)
 
         out0 = self.conv3(out)
         out = self.bn3(out0)
@@ -267,7 +270,7 @@ class BottleneckWithFixedBatchNorm(nn.Module):
             residual = self.downsample(x)
 
         out += residual
-        out = F.relu_(out)
+        out = self.acf1(out)
 
         return out
 
@@ -286,7 +289,7 @@ class StemWithFixedBatchNorm(nn.Module):
     def forward(self, x):
         x = self.conv1(x)
         x = self.bn1(x)
-        x = F.relu_(x)
+        x = self.acf1(x)
         x = F.max_pool2d(x, kernel_size=3, stride=2, padding=1)
         return x
 
