@@ -2,6 +2,7 @@
 import os
 
 from yacs.config import CfgNode as CN
+import torch.nn.functional as F
 
 
 # -----------------------------------------------------------------------------
@@ -226,6 +227,13 @@ _C.MODEL.RESNETS.RES5_DILATION = 1
 
 _C.MODEL.RESNETS.RES2_OUT_CHANNELS = 256
 _C.MODEL.RESNETS.STEM_OUT_CHANNELS = 64
+
+
+# ---------------------------------------------------------------------------- #
+# Activation Function
+# ---------------------------------------------------------------------------- #
+_C.MODEL.ACTIVATION_FUNCTION = F.relu
+
 
 # ---------------------------------------------------------------------------- #
 # Solver
