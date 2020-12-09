@@ -64,6 +64,8 @@ class FPN2MLPFeatureExtractor(nn.Module):
         self.fc6 = nn.Linear(input_size, representation_size)
         self.fc7 = nn.Linear(representation_size, representation_size)
 
+        self.acf1 = cfg.MODEL.ACTIVATION_FUNCTION
+
         for l in [self.fc6, self.fc7]:
             # Caffe2 implementation uses XavierFill, which in fact
             # corresponds to kaiming_uniform_ in PyTorch
@@ -74,8 +76,8 @@ class FPN2MLPFeatureExtractor(nn.Module):
         x = self.pooler(x, proposals)
         x = x.view(x.size(0), -1)
 
-        x = F.relu(self.fc6(x))
-        x = F.relu(self.fc7(x))
+        x = self.acf1(self.fc6(x))
+        x = self.acf1(self.fc7(x))
 
         return x
 

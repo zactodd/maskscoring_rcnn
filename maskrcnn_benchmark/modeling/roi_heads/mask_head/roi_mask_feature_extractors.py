@@ -32,6 +32,8 @@ class MaskRCNNFPNFeatureExtractor(nn.Module):
         input_size = cfg.MODEL.BACKBONE.OUT_CHANNELS
         self.pooler = pooler
 
+        self.acf1 = cfg.MODEL.ACTIVATION_FUNCTION
+
         layers = cfg.MODEL.ROI_MASK_HEAD.CONV_LAYERS
 
         next_feature = input_size
@@ -51,7 +53,7 @@ class MaskRCNNFPNFeatureExtractor(nn.Module):
         x = self.pooler(x, proposals)
         roi_feature = x         
         for layer_name in self.blocks:
-            x = F.relu(getattr(self, layer_name)(x))
+            x = self.acf1(getattr(self, layer_name)(x))
         return x, roi_feature
 
 
