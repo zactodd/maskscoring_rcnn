@@ -94,6 +94,7 @@ class ResNet(nn.Module):
                 num_groups,
                 cfg.MODEL.RESNETS.STRIDE_IN_1X1,
                 first_stride=int(stage_spec.index > 1) + 1,
+                activation_function=cfg.MODEL.ACTIVATION_FUNCTION
             )
             in_channels = out_channels
             self.add_module(name, module)
@@ -132,6 +133,7 @@ class ResNetHead(nn.Module):
         stride_in_1x1=True,
         stride_init=None,
         res2_out_channels=256,
+        activation_function=None
     ):
         super(ResNetHead, self).__init__()
 
@@ -158,6 +160,7 @@ class ResNetHead(nn.Module):
                 num_groups,
                 stride_in_1x1,
                 first_stride=stride,
+                activation_function=activation_function
             )
             stride = None
             self.add_module(name, module)
@@ -178,6 +181,7 @@ def _make_stage(
     num_groups,
     stride_in_1x1,
     first_stride,
+    activation_function
 ):
     blocks = []
     stride = first_stride
@@ -190,6 +194,7 @@ def _make_stage(
                 num_groups,
                 stride_in_1x1,
                 stride,
+                activation_function
             )
         )
         stride = 1
@@ -250,18 +255,18 @@ class BottleneckWithFixedBatchNorm(nn.Module):
         )
         self.bn3 = FrozenBatchNorm2d(out_channels)
 
-        self.acf1 = activation_function
+        self.acf = activation_function
 
     def forward(self, x):
         residual = x
 
         out = self.conv1(x)
         out = self.bn1(out)
-        out = self.acf1(out)
+        out = self.acf(out)
 
         out = self.conv2(out)
         out = self.bn2(out)
-        out = self.acf1(out)
+        out = self.acf(out)
 
         out0 = self.conv3(out)
         out = self.bn3(out0)
@@ -270,7 +275,7 @@ class BottleneckWithFixedBatchNorm(nn.Module):
             residual = self.downsample(x)
 
         out += residual
-        out = self.acf1(out)
+        out = self.acf(out)
 
         return out
 
@@ -289,7 +294,7 @@ class StemWithFixedBatchNorm(nn.Module):
     def forward(self, x):
         x = self.conv1(x)
         x = self.bn1(x)
-        x = self.acf1(x)
+        x = self.acf(x)
         x = F.max_pool2d(x, kernel_size=3, stride=2, padding=1)
         return x
 

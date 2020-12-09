@@ -31,10 +31,10 @@ class MaskRCNNC4Predictor(nn.Module):
                 # corresponds to kaiming_normal_ in PyTorch
                 nn.init.kaiming_normal_(param, mode="fan_out", nonlinearity="relu")
 
-        self.acf1 = cfg.MODEL.ACTIVATION_FUNCTION
+        self.acf = cfg.MODEL.ACTIVATION_FUNCTION
 
     def forward(self, x):
-        x = self.acf1(self.conv5_mask(x))
+        x = self.acf(self.conv5_mask(x))
         return self.mask_fcn_logits(x)
 
 

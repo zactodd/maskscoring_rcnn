@@ -30,6 +30,7 @@ class ResNet50Conv5ROIFeatureExtractor(nn.Module):
             stride_in_1x1=config.MODEL.RESNETS.STRIDE_IN_1X1,
             stride_init=None,
             res2_out_channels=config.MODEL.RESNETS.RES2_OUT_CHANNELS,
+            activation_function=config.ACTIVATION_FUNCTION
         )
 
         self.pooler = pooler
@@ -64,7 +65,7 @@ class FPN2MLPFeatureExtractor(nn.Module):
         self.fc6 = nn.Linear(input_size, representation_size)
         self.fc7 = nn.Linear(representation_size, representation_size)
 
-        self.acf1 = cfg.MODEL.ACTIVATION_FUNCTION
+        self.acf = cfg.MODEL.ACTIVATION_FUNCTION
 
         for l in [self.fc6, self.fc7]:
             # Caffe2 implementation uses XavierFill, which in fact
@@ -76,8 +77,8 @@ class FPN2MLPFeatureExtractor(nn.Module):
         x = self.pooler(x, proposals)
         x = x.view(x.size(0), -1)
 
-        x = self.acf1(self.fc6(x))
-        x = self.acf1(self.fc7(x))
+        x = self.acf(self.fc6(x))
+        x = self.acf(self.fc7(x))
 
         return x
 
